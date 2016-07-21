@@ -1,5 +1,5 @@
 function [cost,grad] = sparseAutoencoderCost(theta, visibleSize, hiddenSize, ...
-                                             lambda, sparsityParam, beta, data_clean,data_noise)
+                                              data_clean,data_noise)
 
 % visibleSize: the number of input units (probably 64) 
 % hiddenSize: the number of hidden units (probably 25) 
@@ -47,26 +47,26 @@ b2grad = zeros(size(b2));
 errtp = ((a3 - data_clean) .^ 2) ./ 2;
 err = sum(sum(errtp)) ./ nSamples;
 % now calculate pj which is the average activation of hidden units
-pj = sum(a2, 2) ./ nSamples;
+% pj = sum(a2, 2) ./ nSamples;
 % the second part is weight decay part
-err2 = sum(sum(W1 .^ 2)) + sum(sum(W2 .^ 2));
-err2 = err2 * lambda / 2;
+% err2 = sum(sum(W1 .^ 2)) + sum(sum(W2 .^ 2));
+% err2 = err2 * lambda / 2;
 % the third part of overall cost function is the sparsity part
-err3 = zeros(hiddenSize, 1);
-err3 = err3 + sparsityParam .* log(sparsityParam ./ pj) + (1 - sparsityParam) .* log((1 - sparsityParam) ./ (1 - pj));
-cost = err + err2 + beta * sum(err3);
+% err3 = zeros(hiddenSize, 1);
+% err3 = err3 + sparsityParam .* log(sparsityParam ./ pj) + (1 - sparsityParam) .* log((1 - sparsityParam) ./ (1 - pj));
+cost = err; %+ err2; %beta * sum(err3);
  
 % following are for calculating the grad of weights.
-delta3 = -(data_clean - a3) .* dsigmoid(a3);
-delta2 = bsxfun(@plus, (W2' * delta3), beta .* (-sparsityParam ./ pj + (1 - sparsityParam) ./ (1 - pj))); 
+delta3 = -(data_clean - a3).* dsigmoid(a3);
+delta2 = (W2' * delta3);%bsxfun(@plus, , beta .* (-sparsityParam ./ pj + (1 - sparsityParam) ./ (1 - pj))); 
 delta2 = delta2 .* dsigmoid(a2);
 nablaW1 = delta2 * a1';
 nablab1 = delta2;
 nablaW2 = delta3 * a2';
 nablab2 = delta3;
  
-W1grad = nablaW1 ./ nSamples + lambda .* W1;
-W2grad = nablaW2 ./ nSamples + lambda .* W2;
+W1grad = nablaW1 ./ nSamples;% + lambda .* W1;
+W2grad = nablaW2 ./ nSamples; %+ lambda .* W2;
 b1grad = sum(nablab1, 2) ./ nSamples;
 b2grad = sum(nablab2, 2) ./ nSamples;
  

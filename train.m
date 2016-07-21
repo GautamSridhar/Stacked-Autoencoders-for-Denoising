@@ -4,13 +4,13 @@
 %%======================================================================
 inputSize = 21*21;
 hiddenSizeL1 = 600;    % Layer 1 Hidden Size
-hiddenSizeL2 = 600;    % Layer 2 Hidden Size
+hiddenSizeL2 = 500;    % Layer 2 Hidden Size
 hiddenSizeL3 = 600;    % Layer 3 Hidden Size 
-sparsityParam = 0.1;   % desired average activation of the hidden units.
+% sparsityParam = 0.8;   % desired average activation of the hidden units.
                        % (This was denoted by the Greek alphabet rho, which looks like a lower-case "p",
 		               %  in the lecture notes). 
-lambda = 3e-3;         % weight decay parameter       
-beta = 3;              % weight of sparsity penalty term
+lambda = 0;         % weight decay parameter       
+% beta = 3;              % weight of sparsity penalty term
 %%======================================================================
 %Load the data for training
 [patches,patches_noise] = sampleIMAGES;
@@ -19,8 +19,8 @@ beta = 3;              % weight of sparsity penalty term
 %Train the first layer
 sae1Theta = initializeParameters(hiddenSizeL1,inputSize);                  %initialize the weights
 costFunc = @(p) sparseAutoencoderCost(p,inputSize,hiddenSizeL1,...         %calculate cost and gradient  
-                                       lambda,sparsityParam,beta,patches,patches_noise);
-options = optimset('MaxIter', 300);
+                                       patches,patches_noise);
+options = optimset('MaxIter', 600);
 [opttheta1,cost1] = fmincg(costFunc,sae1Theta,options);
 %%======================================================================
 %Feedforward through the first autoencoder
@@ -31,7 +31,7 @@ options = optimset('MaxIter', 300);
 %Train the second layer
 sae2Theta = initializeParameters(hiddenSizeL2, hiddenSizeL1);               %initialize the weights
 costFunc2 = @(p) sparseAutoencoderCost(p,hiddenSizeL1,hiddenSizeL2,...          %calculate cost and gradient  
-                                       lambda,sparsityParam,beta,sae1Features,sae1Features_noise);
+                                       sae1Features,sae1Features_noise);
 [opttheta2,cost2] = fmincg(costFunc2,sae2Theta,options);
 %%======================================================================
 %Feedforward through the second autoencoder
@@ -59,7 +59,7 @@ b3 = zeros(inputSize, 1);
 init_theta = [W1(:);W2(:);W3(:);b1(:);b2(:);b3(:)];
 
 costfin = @(p) finetune(p,inputSize,hiddenSizeL1,hiddenSizeL2,...
-                                    lambda,patches,patches_noise);
+                                    patches,patches_noise);
                                 
 [opttheta,costfinal] = fmincg(costfin,init_theta,options);
 %%======================================================================
