@@ -19,7 +19,7 @@ numgrad = zeros(size(theta));
 % Hint: You will probably want to compute the elements of numgrad one at a time. 
 size(theta)
 EPSILON = 1e-4;
-for i=1:size(theta)
+for i=1:30
 i
 memo = theta(i);
 theta(i) = memo + EPSILON;

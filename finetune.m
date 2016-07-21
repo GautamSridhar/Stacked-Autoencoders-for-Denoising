@@ -1,5 +1,5 @@
 function [cost,grad] = finetune(theta,visibleSize,hiddenSizeL1,hiddenSizeL2,...
-                                    lambda,data_clean,data_noise)
+                                    data_clean,data_noise)
 
 q = (hiddenSizeL1*hiddenSizeL2)+(hiddenSizeL1*visibleSize);
 q1 = (hiddenSizeL2*visibleSize); 
@@ -23,12 +23,12 @@ b3grad = zeros(size(b3));
 errtp = ((a4 - data_clean) .^ 2) ./ 2;
 err = sum(sum(errtp)) ./ nSamples;
 
-err2 = sum(sum(W3 .^ 2));
-err2 = err2 * lambda / 2;
+% err2 = sum(sum(W3 .^ 2));
+% err2 = err2 * lambda / 2;
 
-cost = err + err2;
+cost = err; % + err2;
 
-delta4 = -(data_clean - a4) .* dsigmoid(a4);
+delta4 = -(data_clean - a4).* dsigmoid(a4);
 delta3 = (W3' * delta4); 
 delta3 = delta3 .* dsigmoid(a3);
 delta2 = (W2' * delta3);
@@ -42,7 +42,7 @@ nablab3 = delta4;
  
 W1grad = nablaW1 ./ nSamples;
 W2grad = nablaW2 ./ nSamples;
-W3grad = nablaW3 ./ nSamples + lambda.*W3;
+W3grad = nablaW3 ./ nSamples; %+ lambda.*W3;
 b1grad = sum(nablab1, 2) ./ nSamples;
 b2grad = sum(nablab2, 2) ./ nSamples;
 b3grad = sum(nablab3, 2) ./ nSamples;
