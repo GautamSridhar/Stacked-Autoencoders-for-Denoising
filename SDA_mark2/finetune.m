@@ -1,4 +1,4 @@
-function [cost,grad] = finetune(theta,visibleSize,hiddenSizeL1,hiddenSizeL2,...
+function [cost,grad] = finetune(theta,visibleSize,hiddenSizeL1,hiddenSizeL2,hiddenSizeL3,...
                                     lambda,data_clean,data_noise)
 
 q = (hiddenSizeL1*hiddenSizeL2)+(hiddenSizeL1*visibleSize);
@@ -10,8 +10,8 @@ W3 = reshape(theta(q+1:q+q1),hiddenSizeL3,hiddenSizeL2);
 W4 = reshape(theta(q+q1+1:q+q1+q2),visibleSize,hiddenSizeL3);
 b1 = theta(q+q1+q2+1:q+q1+q2+hiddenSizeL1);
 b2 = theta(q+q1+q2+hiddenSizeL1+1:q+q1+q2+hiddenSizeL1+hiddenSizeL2);
-b3 = theta(q+q1+q3+hiddenSizeL1+hiddenSizeL2+1:q+q1+q3+hiddenSizeL1+hiddenSizeL2+hiddenSizeL3);
-b4 = theta(q+q1+q3+hiddenSizeL1+hiddenSizeL2+hiddenSizeL3+1:end);
+b3 = theta(q+q1+q2+hiddenSizeL1+hiddenSizeL2+1:q+q1+q2+hiddenSizeL1+hiddenSizeL2+hiddenSizeL3);
+b4 = theta(q+q1+q2+hiddenSizeL1+hiddenSizeL2+hiddenSizeL3+1:end);
 
 W1grad = zeros(size(W1)); 
 W2grad = zeros(size(W2));
@@ -27,10 +27,10 @@ b4grad = zeros(size(b4));
 errtp = ((a5 - data_clean) .^ 2) ./ 2;
 err = sum(sum(errtp)) ./ nSamples;
 
-% err2 = sum(sum(W4 .^ 2));
-% err2 = err2 * lambda / 2;
+err2 = sum(sum(W4 .^ 2))+sum(sum(W3 .^ 2))+sum(sum(W2 .^ 2))+sum(sum(W1 .^ 2));
+err2 = err2 * lambda / 2;
 
-cost = err;
+cost = err+err2;
 
 delta5 = -(data_clean - a5) .* dsigmoid(a5);
 delta4 = (W4' * delta5); 
@@ -47,10 +47,10 @@ nablaW3 = delta4 * a3';
 nablab3 = delta4;
 nablaW4 = delta5*a4';
 nablab4 = delta5;
-W1grad = nablaW1 ./ nSamples;
-W2grad = nablaW2 ./ nSamples;
-W3grad = nablaW3 ./ nSamples;
-W4grad = nablaW4 ./ nSamples;
+W1grad = nablaW1 ./ nSamples + lambda.*W1;
+W2grad = nablaW2 ./ nSamples + lambda.*W2;
+W3grad = nablaW3 ./ nSamples + lambda.*W3;
+W4grad = nablaW4 ./ nSamples + lambda.*W4;
 b1grad = sum(nablab1, 2) ./ nSamples;
 b2grad = sum(nablab2, 2) ./ nSamples;
 b3grad = sum(nablab3, 2) ./ nSamples;

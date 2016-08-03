@@ -7,11 +7,10 @@ function [cost,grad] = sparseAutoencoderCost(theta, visibleSize, hiddenSize, ...
 % sparsityParam: The desired average activation for the hidden units (denoted in the lecture
 %                           notes by the greek alphabet rho, which looks like a lower-case "p").
 % beta: weight of sparsity penalty term
-% data: Our 64x10000 matrix containing the training data.  So, data(:,i) is the i-th training example. 
+% data:  the training data.  So, data(:,i) is the i-th training example. 
   
 % The input theta is a vector (because minFunc expects the parameters to be a vector). 
-% We first convert theta to the (W1, W2, b1, b2) matrix/vector format, so that this 
-% follows the notation convention of the lecture notes. 
+% We first convert theta to the (W1, W2, b1, b2) matrix/vector format, so that this  
 W1 = reshape(theta(1:hiddenSize*visibleSize), hiddenSize, visibleSize);
 W2 = reshape(theta(hiddenSize*visibleSize+1:2*hiddenSize*visibleSize), visibleSize, hiddenSize);
 b1 = theta(2*hiddenSize*visibleSize+1:2*hiddenSize*visibleSize+hiddenSize);
@@ -58,7 +57,7 @@ cost = err + err2 + beta * sum(err3);
  
 % following are for calculating the grad of weights.
 delta3 = -(data_clean - a3) .* dsigmoid(a3);
-delta2 = bsxfun(@plus, (W2' * delta3), beta .* (-sparsityParam ./ pj + (1 - sparsityParam) ./ (1 - pj))); 
+delta2 =  bsxfun(@plus,(W2' * delta3), beta .* (-sparsityParam ./ pj + (1 - sparsityParam) ./ (1 - pj))); 
 delta2 = delta2 .* dsigmoid(a2);
 nablaW1 = delta2 * a1';
 nablab1 = delta2;
