@@ -1,17 +1,16 @@
-function [patches,patches_rain] = sampleIMAGES()
+function [patches,patchez] = sampleIMAGES()
 % sampleIMAGES
 % Returns 10000 patches for training
 
-load sample_images;    % load images from disk 
-load sample_images_noise;
+load IMAGES;    % load images from disk 
 
-patchsize = 21;  % we'll use 8x8 patches 
-numpatches = 20000;
+patchsize = 15;  % we'll use 8x8 patches 
+numpatches = 10000;
 
 % Initialize patches with zeros.  Your code will fill in this matrix--one
 % column per patch, 10000 columns. 
 patches = zeros(patchsize*patchsize, numpatches);
-patches_rain = zeros(patchsize*patchsize, numpatches);
+patchez = zeros(patchsize*patchsize, numpatches);
 
 %% ---------- YOUR CODE HERE --------------------------------------
 %  Instructions: Fill in the variable called "patches" using data 
@@ -25,15 +24,29 @@ patches_rain = zeros(patchsize*patchsize, numpatches);
 %  more details.) As a second example, IMAGES(21:30,21:30,1) is an image
 %  patch corresponding to the pixels in the block (21,21) to (30,30) of
 %  Image 1
-for i=1:numpatches
-    r = randi(75,1);
-    c = randi(75,1);
-    d = randi(10,1);
-    patch = sample_images(r:r+20,c:c+20,d);
-    patches(:,i) = reshape(patch,[441 1]);
-    patches_rain(:,i) = reshape(imnoise(patch,'gaussian'),[441 1]);
-    i
+counter = 1;
+ranimg = ceil(rand(1, numpatches) * 10);
+ranpix = ceil(rand(2, numpatches) * (512 - patchsize));
+ranpixm = ranpix + patchsize - 1;
+while(counter <= numpatches)
+whichimg = ranimg(1, counter);
+whichpix = ranpix(:, counter);
+whichpixm = ranpixm(:, counter);
+patch = IMAGES(whichpix(1):whichpixm(1), whichpix(2):whichpixm(2), whichimg);
+patch1 = imnoise(patch,'gaussian');
+repatch = reshape(patch, patchsize * patchsize, 1);
+patches(:, counter) = repatch;
+patchez(:, counter) = reshape(patch1, patchsize * patchsize, 1); 
+counter = counter + 1;
 end
+
+
+
+
+
+
+
+
 
 %% ---------------------------------------------------------------
 % For the autoencoder to work well we need to normalize the data
@@ -41,8 +54,7 @@ end
 % (due to the sigmoid activation function), we have to make sure 
 % the range of pixel values is also bounded between [0,1]
 patches = normalizeData(patches);
-patches_rain = normalizeData(patches_rain);
-
+patchez = normalizeData(patchez);
 end
 
 

@@ -1,29 +1,30 @@
-I = imread('C:\Users\Gautam Sridhar\Documents\MATLAB\Rainstreak\Train_data\pic12.jpg');
+I = imread('C:\Users\Gautam Sridhar\Documents\MATLAB\Rainstreak\Train_data\Train_rainstreak\picrainstreak10.jpg');
 I = rgb2gray(I);
 I = im2double(I);
-I = imnoise(I,'gaussian');
-J = I;
-patchsize = 21;
+J = I;  
+% I = imnoise(I,'gaussian');
+patchsize = 11;
 [m,n] = size(I);
 q = (patchsize-1)/2;
 image_padded = padarray(I,[q,q],'replicate');
-patches = zeros(patchsize*patchsize,m*n);
+patchez = zeros(patchsize*patchsize,m*n);
 count = 1;
 for i=1:m
     for j=1:n
         i1 = i + q;
         j1 = j + q;
         patch =image_padded(i1-q:i1+q,j1-q:j1+q);
-        patches(:,count) = reshape(patch,[441,1]);
+%         patch = imnoise(patch,'gaussian',0.1);
+        patchez(:,count) = reshape(patch,[patchsize*patchsize,1]);
         count = count+1;
     end
 end
-patches = normalizeData(patches);
-patch_out = feedForwardAutoencoder_test(sae1Theta,hiddenSizeL1,inputSize,patches);
+% patchez = normalizeData(patchez);
+patch_out = predict(opttheta3,inputSize,hiddenSizeL1,hiddenSizeL2,hiddenSizeL3,patchez);
 count = 1;
 for i=1:m
     for j=1:n
-        patch = reshape(patch_out(:,count),[21,21]);
+        patch = reshape(patch_out(:,count),[patchsize,patchsize]);
         img(i,j) = patch(q+1,q+1);
         count = count+1;
     end
